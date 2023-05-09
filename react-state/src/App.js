@@ -1,4 +1,4 @@
-import React, from "react";
+import React from "react";
 import Fruits from "./Fruits";
 import FruitsCounter from "./FruitsCounter";
 
