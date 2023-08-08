@@ -1,4 +1,6 @@
 import {useState} from "react";
+import React from "react";
+
 function Square({ value, onSquareClick }) {
     return <button className="square" onClick={onSquareClick}>
         {value}
@@ -27,6 +29,7 @@ function Board({ xIsNext, squares, onPlay }) {
         status = 'Next player: ' + (xIsNext ? 'X' : '0');
     }
 
+
   return(
       <>
         <div className='status'>{status}</div>
@@ -50,13 +53,17 @@ function Board({ xIsNext, squares, onPlay }) {
 }
 
 export default function Game() {
-    const [history, setHistory] = useState([Array(9).fill(null)]);
+    const [history, setHistory] = useState([
+        { data: Array(9).fill(null), id: 0}
+        ]);
     const [currentMove, setCurrentMove] = useState(0);
+    const [isDescending, setIsDescending] = useState(false)
     const xIsNext = currentMove % 2 === 0;
-    const currentSquares = history[currentMove];
+    const currentSquares = history[currentMove].data;
 
     function handlePlay(nextSquares) {
-        const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+        const nextHistory = [...history.slice(0, currentMove + 1), {data:nextSquares, id: currentMove + 1}];
+        console.log(nextHistory)
         setHistory(nextHistory);
         setCurrentMove(nextHistory.length - 1);
     }
@@ -67,17 +74,43 @@ export default function Game() {
 
     const moves = history.map((squares, move) => {
         let description;
-        if (move > 0) {
+        let lastMove = false;
+        if (move > 0 && move < history.length - 1) {
             description = 'Go to move #' + move;
-        } else {
+        } else if (move === 0 ) {
             description = 'Go to game start';
+        } else {
+            lastMove = true;
+            description = 'You are at move #' + move;
         }
+
         return (
-            <li key={move}>
-                <button onClick={() => jumpTo(move)}>{description}</button>
-            </li>
-        )
+            <React.Fragment key={squares.id}>
+                {lastMove ? (
+                    <li>
+                    <p>{description}</p>
+                    </li>
+                ) : (
+                    <li>
+                        <button onClick={() => jumpTo(move)}>{description}</button>
+                    </li>
+                )}
+            </React.Fragment>
+        );
     })
+
+
+    function handleToggle() {
+        setIsDescending(!isDescending)
+        console.log("toggled")
+    }
+
+    const sortedMoves = [...moves];
+    sortedMoves.sort((a, b) =>
+        isDescending
+            ? Number(b.key) - Number(a.key)
+            : Number(a.key) - Number(b.key)
+    );
 
     return (
         <div className='game'>
@@ -85,7 +118,8 @@ export default function Game() {
                 <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
             </div>
             <div className='game-info'>
-                <ol>{moves}</ol>
+                <ol>{sortedMoves}</ol>
+                <button onClick={() => handleToggle()}>Toggle moves</button>
             </div>
         </div>
     );
