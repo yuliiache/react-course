@@ -1,0 +1,16 @@
+.RadioGroup {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+input {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+label {
+    cursor: pointer;
+}
